@@ -4,6 +4,15 @@ pipeline {
         jdk 'Java 17'
         maven 'Maven3'
     }
+environment {
+	    APP_NAME = "register-app-pipeline"
+            RELEASE = "1.0.0"
+            DOCKER_USER = "nsekhar73"
+            DOCKER_PASS = 'Dockerhub-token'
+            IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
+            IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+	    JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
+    }
 stages{
         stage("Cleanup Workspace"){
                 steps {
@@ -41,13 +50,22 @@ stages{
            }
        }
 
-	stage("Quality Gate"){
-           steps {
-               script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'Jenkins-Sonarqube-token'
-                }	
+	 stage("Build & Push Docker Image") {
+            steps {
+                script {
+                    docker.withRegistry('',DOCKER_PASS) {
+                        docker_image = docker.build "${IMAGE_NAME}"
+                    }
+
+                    docker.withRegistry('',DOCKER_PASS) {
+                        docker_image.push("${IMAGE_TAG}")
+                        docker_image.push('latest')
+                    }
+                }
             }
 
-        }
+       }
+
+        
   }
 }
