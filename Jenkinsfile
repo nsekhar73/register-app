@@ -13,7 +13,7 @@ stages{
 
         stage("Checkout from SCM"){
                 steps {
-                    git branch: 'main', credentialsId: 'github', url: 'https://github.com/nsekhar73/edureka-java-project.git'
+                    git branch: 'main', credentialsId: 'github', url: 'https://github.com/nsekhar73/register-app.git'
                 }
            }
         
